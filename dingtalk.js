@@ -3,7 +3,7 @@
  */
 const crypto = require("crypto");
 const Adapter = require.main.require("hubot/src/adapter");
-const { TextMessage } = require.main.require("hubot/src/message");
+const {TextMessage} = require.main.require("hubot/src/message");
 const User = require.main.require("hubot/src/user");
 
 const Robot = require("dingtalk-robot-sdk")
@@ -11,6 +11,7 @@ const path = require('path')
 const fs = require('fs')
 
 const Text = Robot.Text;
+const Markdown = Robot.Markdown;
 
 const authDict = ["token", "sign"];
 
@@ -30,6 +31,8 @@ class Dingtalk extends Adapter {
 
     this.token = options.token;
     this.secret = options.secret;
+    this.msgtype = options.msgtype || "text";
+    this.botName = options.botName || "hubot";
     this.authType = options.authType || authDict[0];
     this.mode = options.mode ? options.mode * 1 : dict.MODE.Both;
     this.blackList = options.blackList ? options.blackList.split(",") : [];
@@ -44,7 +47,7 @@ class Dingtalk extends Adapter {
   }
 
   getWebHookUrl(accessToken) {
-    return new Robot({ accessToken: accessToken, secret: this.secret }).getWebHook();
+    return new Robot({accessToken: accessToken, secret: this.secret}).getWebHook();
   }
 
   request(data, envelope, cb) {
@@ -99,14 +102,13 @@ class Dingtalk extends Adapter {
 
     const string = strings.shift();
 
-    const text = new Text();
-    text.setContent(string);
+    const text = this.msgtype === "markdown" ? new Markdown().setTitle(this.botName).add(string) : new Text(string);
 
     if (envelope.user && envelope.user.id) {
       text.atId(envelope.user.id);
     }
 
-    this.robot.logger.debug(`dingtalk send to ${envelope.room || ""}  message: ${text}`);
+    this.robot.logger.debug(`dingtalk send to ${envelope.room || ""}  message: ` + JSON.stringify(text.get()));
 
     this.request(text, envelope, () => {
       this.send.apply(this, [envelope].concat(strings));
@@ -119,7 +121,7 @@ class Dingtalk extends Adapter {
 
     this.send.apply(
       this,
-      [envelope].concat(strings.map(str => `${envelope.user.name}: ${str}`))
+      [envelope].concat(strings.map(str => `${str}`))
     );
   }
 
@@ -142,7 +144,7 @@ class Dingtalk extends Adapter {
   }
 
   isRobotSupportMode(messageData) {
-    const { conversationType } = messageData;
+    const {conversationType} = messageData;
 
     // 判断消息模式
     if (this.mode === 1) {
@@ -157,7 +159,7 @@ class Dingtalk extends Adapter {
   }
 
   isMessageChannelDisabled(messageData) {
-    const { conversationId, } = messageData;
+    const {conversationId,} = messageData;
 
     // 判断会话权限
 
@@ -211,8 +213,9 @@ class Dingtalk extends Adapter {
         const isRobotSupportMode = this.isRobotSupportMode(data);
 
         if (!isRobotSupportMode) {
-          const bannedText = new Text();
-          bannedText.setContent(`机器人不支持${data.conversationType === "1" ? '单聊' : '群聊'}!`);
+          const string = `机器人不支持${data.conversationType === "1" ? '单聊' : '群聊'}!`;
+          const bannedText = this.msgtype === "markdown" ? new Markdown().setTitle(this.botName).add(string) : new Text(string);
+
 
           if (data.senderId && data.conversationType === "2") {
             bannedText.atId(data.senderId);
@@ -228,8 +231,8 @@ class Dingtalk extends Adapter {
         const isMessageChannelDisabled = this.isMessageChannelDisabled(data);
 
         if (isMessageChannelDisabled) {
-          const bannedText = new Text();
-          bannedText.setContent("机器人尚未对该会话启用!");
+          const string = "机器人尚未对该会话启用!";
+          const bannedText = this.msgtype === "markdown" ? new Markdown().setTitle(this.botName).add(string) : new Text(string);
 
           if (data.senderId && data.conversationType === "2") {
             bannedText.atId(data.senderId);
@@ -293,7 +296,7 @@ class Dingtalk extends Adapter {
   receiveMessageFromUrl(msg, msgId, senderId, username) {
     this.robot.logger.info(msg);
 
-    const user = new User(senderId, { name: username });
+    const user = new User(senderId, {name: username});
     this.receive(new TextMessage(user, this.addPrefixMessage(msg), msgId));
   }
 
@@ -336,6 +339,8 @@ const authType = process.env.HUBOT_DINGTALK_AUTH_TYPE;
 const mode = process.env.HUBOT_DINGTALK_MODE;
 const blackList = process.env.HUBOT_DINGTALK_BLACKLIST;
 const whiteList = process.env.HUBOT_DINGTALK_WHITELIST;
+const msgtype = process.env.HUBOT_DINGTALK_MSGTYPE;
+const botName = process.env.HUBOT_NAME;
 
 exports.use = robot => {
   return new Dingtalk(robot, {
@@ -344,6 +349,8 @@ exports.use = robot => {
     authType,
     mode,
     blackList,
-    whiteList
+    whiteList,
+    msgtype,
+    botName,
   })
 };

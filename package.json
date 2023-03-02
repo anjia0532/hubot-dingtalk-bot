@@ -1,7 +1,7 @@
 {
-  "name": "hubot-dingtalk",
-  "version": "1.5.0",
-  "description": "",
+  "name": "hubot-dingtalk-bot",
+  "version": "1.5.0-b14",
+  "description": "A hubot script that communicates with dingtalk",
   "main": "dingtalk.js",
   "scripts": {
     "test": "jest -i --forceExit --detectOpenHandles",
@@ -13,7 +13,15 @@
     "adapter",
     "dingtalk"
   ],
-  "author": "ineo6",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:anjia0532/hubot-dingtalk-bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/anjia0532/hubot-dingtalk-bot/issues"
+  },
+  "homepage": "https://github.com/anjia0532/hubot-dingtalk-bot",
+  "author": "AnJia <anjia0532@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
     "hubot": "^3.3.2"

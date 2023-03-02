@@ -1,4 +1,4 @@
-# hubot-dingtalk
+# hubot-dingtalk-bot
 
 [Hubot](http://hubot.github.com/) 的`dingtalk`适配器，让钉钉机器人无缝接入`hubot`。
 
@@ -17,12 +17,13 @@
 - `HUBOT_DINGTALK_MODE` (会话类型，1:全部，2:单聊，3:群聊)
 - `HUBOT_DINGTALK_BLACKLIST` (会话黑名单，格式为`cidyyyy==,cidxxxx=`，优先极高)
 - `HUBOT_DINGTALK_WHITELIST` (会话白名单，格式为`cidyyyy==,cidxxxx=`)
+- `HUBOT_DINGTALK_MSGTYPE` (消息类型: text,markdown，默认text)
 
 ## Adapter 配置
 
 ### 添加自定义机器人
 
-打开钉钉添加机器人页面，在底部找到`POST 地址`和`Token`（需要开通Outgoing权限）
+打开钉钉添加机器人页面，在底部找到`POST 地址`和`Token`（需要开通Outgoing权限），但是目前Outgoing功能关闭了，企业内部机器人默认是开放Outgoing的。
 
 #### POST 地址
 
@@ -32,7 +33,14 @@
 
 ### 添加企业内部机器人
 
-登录钉钉开发平台创建。
+登录[钉钉开放平台](https://open-dev.dingtalk.com/fe/app#/corp/robot)创建
+
+应用开发-企业内部开发-机器人-创建老版机器人
+也可以 应用开发-企业内部应用-应用详情页-机器人与消息推送创建新版机器人
+功能一样，只是创建入口不一样，新版是作为应用的一部分，老版是独立的。
+
+以老版为例
+创建成功后在 基础信息-应用信息 复制 AppSecret，在 基础信息-开发管理 配置回调地址
 
 #### 权限认证
 
@@ -105,14 +113,6 @@ module.exports = (robot) ->
 - [x] 接入主动发消息webhook
 - [ ] 优化消息显示
 
-## 反馈
+## 鸣谢
 
-| Github Issue | 钉钉群  |
-| --- | --- |
-| [issues](https://github.com/ineo6/hubot-dingtalk/issues) | <img src="https://cdn.jsdelivr.net/gh/ineo6/hubot-dingtalk/dingtalk-group.JPG" width="260" />  |
-
-## 如果喜欢的话
-
-如果喜欢的话，欢迎请我喝一杯咖啡。`star`,`follow`也是对我工作的肯定和鼓励。
-
-<img src="https://cdn.jsdelivr.net/gh/ineo6/hubot-dingtalk/wechat-like.jpeg" alt="wechat-like" width=256 height=256 />
+- https://github.com/ineo6/hubot-dingtalk
